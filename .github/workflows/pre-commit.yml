@@ -21,12 +21,29 @@ jobs:
       - name: Install UV
         uses: astral-sh/setup-uv@v3
 
-      - name: Install dependencies using UV
+      - name: Detect services that changed
+        id: changed
         run: |
-          uv sync
+          echo "services=$(git diff --name-only HEAD~1 HEAD | grep -o '^[^/]*-service' | sort -u | tr '\n' ' ')" >> $GITHUB_OUTPUT
 
-      - name: Install pre-commit
-        run: uv tool install pre-commit
+      - name: Show detected services
+        run: echo "Changed services: ${{ steps.changed.outputs.services }}"
 
-      - name: Run pre-commit
-        run: pre-commit run --all-files --show-diff-on-failure
+      - name: Run pre-commit for each service
+        if: ${{ steps.changed.outputs.services != '' }}
+        run: |
+          for service in ${{ steps.changed.outputs.services }}; do
+            echo "Running for $service"
+            cd $service
+
+            # Install dependencies
+            uv sync
+
+            # Install pre-commit
+            uv tool install pre-commit
+
+            # Run pre-commit
+            pre-commit run --all-files --show-diff-on-failure
+
+            cd ..
+          done
