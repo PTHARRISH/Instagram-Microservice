@@ -21,36 +21,14 @@ jobs:
       - name: Install UV
         uses: astral-sh/setup-uv@v3
 
-      - name: Detect changed microservices
-        id: changed
-        uses: tj-actions/changed-files@v44
-        with:
-          files: |
-            **/*-service/**
+      - name: Install dependencies using UV
+        working-directory: user-service
+        run: uv sync
 
-      - name: List changed paths
-        run: echo "${{ steps.changed.outputs.all_modified_files }}"
+      - name: Install pre-commit
+        working-directory: user-service
+        run: uv tool install pre-commit
 
-      - name: Extract service names
-        id: services
-        run: |
-          services=$(echo "${{ steps.changed.outputs.all_modified_files }}" \
-            | grep -oE '[^/]+-service' | sort -u | tr '\n' ' ')
-          echo "services=$services" >> $GITHUB_OUTPUT
-
-      - name: Show detected services
-        run: echo "Services found: ${{ steps.services.outputs.services }}"
-
-      - name: Run pre-commit per service
-        if: ${{ steps.services.outputs.services != '' }}
-        run: |
-          for service in ${{ steps.services.outputs.services }}; do
-            echo "Running pre-commit in $service"
-            cd $service
-
-            uv sync
-            uv tool install pre-commit
-            pre-commit run --all-files --show-diff-on-failure
-
-            cd ..
-          done
+      - name: Run pre-commit
+        working-directory: user-service
+        run: pre-commit run --all-files --show-diff-on-failure
