@@ -1,0 +1,29 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+.env
+
+# Migration folders (optional — commonly committed for apps like Django)
+migrations/
+*/migrations/
+*/migrations/*.py
+*/migrations/*.pyc
+*/migrations/__pycache__/
+
+# Ruff cache
+.ruff_cache/
+
+
+# pytest cache
+.pytest_cache/
+.coverage
+
+# Static files
+staticfiles/
