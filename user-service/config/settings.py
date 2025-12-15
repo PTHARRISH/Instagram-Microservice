@@ -11,7 +11,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
-
+from datetime import timedelta
+import os
 from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -39,6 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.postgres",
     # Third Party
     "rest_framework",
     "rest_framework_simplejwt",  # JWT Auth
@@ -140,6 +142,11 @@ USE_TZ = True
 
 # --- 6. Static Files ---
 STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
 
 # --- 7. DRF & Swagger ---
 REST_FRAMEWORK = {
@@ -159,3 +166,26 @@ SPECTACULAR_SETTINGS = {
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# -- 8. JWT Settings ---
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(
+        minutes=config("ACCESS_TOKEN_LIFETIME", default=15, cast=int)
+    ),
+    "REFRESH_TOKEN_LIFETIME": timedelta(
+        days=config("REFRESH_TOKEN_LIFETIME", default=1, cast=int)
+    ),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+}
+
+
+# --- 9. Logging ---
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {"class": "logging.StreamHandler"},
+    },
+    "root": {"handlers": ["console"], "level": "INFO"},
+}
