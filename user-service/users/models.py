@@ -23,6 +23,7 @@ class BaseModel(models.Model):
 class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(_("email address"), unique=True, db_index=True)
+    mobile_number = models.CharField(max_length=15, blank=True, null=True, unique=True)
     display_name = models.CharField(max_length=150, blank=True, null=True)
 
     class Meta:
@@ -64,6 +65,8 @@ class Profile(BaseModel):
     highlights = ArrayField(models.UUIDField(), default=list, blank=True)
 
     profile_views = models.BigIntegerField(default=0)
+
+    professional_changed_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         indexes = [
